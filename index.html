@@ -120,17 +120,31 @@ body{min-height:100vh;padding:calc(env(safe-area-inset-top,0px) + 20px) 18px cal
   var isKakao = /KAKAOTALK/i.test(ua);
   var isIOS = /iPhone|iPad|iPod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
-  $('openNow').href = APP_URL;
-  $('openLink').href = APP_URL;
+  // 앱 화면을 이 페이지 안에 넣어서 띄움 → 구글의 "이 애플리케이션은 … 만들었습니다" 안내줄이 나오지 않음
+  var embed = function () {
+    document.title = '선우FA 발주대장';
+    var st = document.createElement('style');
+    st.textContent = 'html,body{margin:0;height:100%;background:#0b1220;overflow:hidden}#app{position:fixed;inset:0;width:100%;height:100%;height:100dvh;border:0;display:block}';
+    document.head.appendChild(st);
+    document.body.innerHTML = '';
+    var f = document.createElement('iframe');
+    f.id = 'app'; f.src = APP_URL; f.title = '선우FA 발주대장';
+    f.allow = 'clipboard-read; clipboard-write; fullscreen';
+    document.body.appendChild(f);
+  };
+  var wantApp = /[?&]app=1\b/.test(location.search);
+
+  $('openNow').href = './?app=1';
+  $('openLink').href = './?app=1';
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
   }
 
   // 1) 설치된 앱으로 열었을 때: 바로 발주대장으로
-  if (isStandalone) {
-    show('main', false); show('opening', true);
-    location.replace(APP_URL);
+  if (isStandalone || wantApp) {
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});
+    embed();
     return;
   }
 
