@@ -1,0 +1,19 @@
+{
+  "id": "./",
+  "name": "선우FA 발주대장",
+  "short_name": "발주대장",
+  "description": "선우FA 사내 자재 발주 관리",
+  "lang": "ko",
+  "start_url": "./?source=app",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0b1222",
+  "theme_color": "#0b1222",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

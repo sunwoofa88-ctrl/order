@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>선우FA 발주대장</title>
+<meta name="description" content="선우FA 사내 자재 발주 관리 — 앱 설치">
+<meta name="theme-color" content="#0b1222">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="발주대장">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+:root{--bg:#0b1222;--card:#121c33;--line:rgba(157,177,207,.22);--ink:#edf3ff;--ink2:#a9b8d2;--glow:#38c6ec;--glowInk:#04121c;--ok:#3ad38b;--warn:#ffcf5c}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',system-ui,sans-serif;-webkit-font-smoothing:antialiased;word-break:keep-all}
+body{min-height:100vh;padding:calc(env(safe-area-inset-top,0px) + 20px) 18px calc(env(safe-area-inset-bottom,0px) + 28px)}
+.wrap{max-width:460px;margin:0 auto;display:grid;gap:18px}
+.head{display:flex;gap:14px;align-items:center}
+.head img{width:72px;height:72px;border-radius:17px;flex:none;box-shadow:0 0 0 1px var(--line),0 10px 30px rgba(56,198,236,.18)}
+.head h1{margin:0;font-size:25px;line-height:1.2}
+.head p{margin:4px 0 0;color:var(--ink2);font-size:15px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;display:grid;gap:14px}
+.card h2{margin:0;font-size:19px}
+.big{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:62px;border:0;border-radius:14px;background:var(--glow);color:var(--glowInk);font-size:21px;font-weight:800;cursor:pointer;text-decoration:none;box-shadow:0 8px 26px rgba(56,198,236,.3)}
+.big:active{transform:translateY(1px)}
+.big[disabled]{opacity:.55}
+.sub{display:flex;align-items:center;justify-content:center;width:100%;min-height:52px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--ink);font-size:17px;font-weight:700;text-decoration:none}
+.steps{margin:0;padding:0;list-style:none;display:grid;gap:12px;counter-reset:s}
+.steps li{display:grid;grid-template-columns:38px 1fr;gap:12px;align-items:start;font-size:17px;line-height:1.5;counter-increment:s}
+.steps li::before{content:counter(s);width:38px;height:38px;border-radius:50%;background:#e5484d;color:#fff;font-weight:800;font-size:19px;display:grid;place-items:center}
+.steps b{color:#fff}
+.kbd{display:inline-flex;align-items:center;gap:4px;padding:1px 8px;border-radius:7px;background:#22304f;border:1px solid var(--line);font-weight:800;white-space:nowrap}
+.kbd svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.note{font-size:14px;color:var(--ink2);line-height:1.55;margin:0}
+.done{border-color:rgba(58,211,139,.6)}
+.done h2{color:var(--ok)}
+.warnc{border-color:rgba(255,207,92,.55)}
+.warnc h2{color:var(--warn)}
+.arrow{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 6px);transform:translateX(-50%);font-size:40px;color:var(--glow);animation:b 1.2s ease-in-out infinite;pointer-events:none;text-shadow:0 0 12px rgba(56,198,236,.6)}
+@keyframes b{50%{transform:translate(-50%,8px)}}
+[hidden]{display:none!important}
+.opening{min-height:70vh;display:grid;place-items:center;text-align:center;gap:12px;font-size:18px;color:var(--ink2)}
+.spin{width:34px;height:34px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--glow);animation:r .8s linear infinite;margin:0 auto 10px}
+@keyframes r{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.arrow,.spin{animation:none}}
+</style>
+</head>
+<body>
+<div class="wrap" id="opening" hidden>
+  <div class="opening"><div><div class="spin"></div>발주대장을 여는 중…<br><a class="sub" id="openLink" style="margin-top:18px" href="#">열리지 않으면 여기를 누르세요</a></div></div>
+</div>
+
+<div class="wrap" id="main">
+  <div class="head">
+    <img src="icon-192.png" alt="">
+    <div><h1>선우FA 발주대장</h1><p>휴대폰 바탕화면에 앱으로 설치합니다</p></div>
+  </div>
+
+  <!-- 카카오톡 안에서 열렸을 때 -->
+  <div class="card warnc" id="kakao" hidden>
+    <h2>카카오톡 화면에서는 설치가 안 됩니다</h2>
+    <p class="note" style="font-size:16px;color:var(--ink)">자동으로 인터넷 앱으로 넘어가는 중입니다. 넘어가지 않으면:</p>
+    <ol class="steps">
+      <li><span>화면 오른쪽 위(또는 아래)의 <span class="kbd">⋮</span> 또는 <span class="kbd">공유</span>를 누르세요</span></li>
+      <li><span><b>다른 브라우저로 열기</b> (아이폰은 <b>Safari로 열기</b>)를 누르세요</span></li>
+    </ol>
+    <button class="sub" id="kakaoRetry" type="button">다시 시도</button>
+  </div>
+
+  <!-- 안드로이드 / PC 크롬 -->
+  <div class="card" id="android" hidden>
+    <h2>버튼 한 번이면 설치됩니다</h2>
+    <button class="big" id="installBtn" type="button">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+      앱 설치하기
+    </button>
+    <p class="note" id="waitNote">설치 창이 뜨면 <b>[설치]</b>를 누르세요. 처음에는 버튼이 준비되기까지 몇십 초 걸릴 수 있습니다.</p>
+    <div id="manual" hidden>
+      <ol class="steps">
+        <li><span>화면 오른쪽 위 <span class="kbd">⋮</span> (삼성 인터넷은 아래 <span class="kbd">≡</span>)를 누르세요</span></li>
+        <li><span><b>앱 설치</b> 또는 <b>홈 화면에 추가</b>를 누르세요</span></li>
+        <li><span><b>설치(추가)</b>를 누르면 끝입니다</span></li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- 아이폰 -->
+  <div class="card" id="ios" hidden>
+    <h2>아이폰은 3번만 누르면 됩니다</h2>
+    <ol class="steps">
+      <li><span>화면 맨 아래 가운데 <span class="kbd"><svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m7 8 5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>공유</span> 버튼을 누르세요</span></li>
+      <li><span>목록을 위로 올려 <span class="kbd">⊞ 홈 화면에 추가</span>를 누르세요</span></li>
+      <li><span>오른쪽 위 <b>추가</b>를 누르면 끝입니다</span></li>
+    </ol>
+    <p class="note">공유 버튼이 안 보이면 화면을 아래로 살짝 내려 보세요. 사파리(Safari)에서 여는 것이 가장 확실합니다.</p>
+  </div>
+
+  <!-- 설치 완료 -->
+  <div class="card done" id="installed" hidden>
+    <h2>✓ 설치 완료!</h2>
+    <p class="note" style="font-size:16px;color:var(--ink)">휴대폰 바탕화면의 <b>발주대장</b> 아이콘을 누르면 바로 열립니다.</p>
+  </div>
+
+  <a class="sub" id="openNow" href="#">설치 없이 지금 바로 열기</a>
+  <p class="note">처음 열면 <b>이름</b>과 <b>사내 접속코드</b>를 한 번만 입력합니다. 접속코드는 관리자에게 받으세요.</p>
+</div>
+<div class="arrow" id="iosArrow" hidden>⬇</div>
+
+<script>
+(function () {
+  var APP_URL = 'https://script.google.com/macros/s/AKfycbwLl31lCUJKY-yEbiXytLKUgicX8LAQJFD4XKKzWXuGlwtMk0M3PygWnrSbZmHpyIhfZA/exec';
+  var ua = navigator.userAgent || '';
+  var $ = function (id) { return document.getElementById(id); };
+  var show = function (id, on) { $(id).hidden = !on; };
+  var isStandalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
+  var isKakao = /KAKAOTALK/i.test(ua);
+  var isIOS = /iPhone|iPad|iPod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+  $('openNow').href = APP_URL;
+  $('openLink').href = APP_URL;
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+  }
+
+  // 1) 설치된 앱으로 열었을 때: 바로 발주대장으로
+  if (isStandalone) {
+    show('main', false); show('opening', true);
+    location.replace(APP_URL);
+    return;
+  }
+
+  // 2) 카카오톡 안에서 열었을 때: 외부 브라우저로 자동 전환
+  if (isKakao) {
+    show('kakao', true); show('openNow', false);
+    var escape = function () { location.href = 'kakaotalk://web/openExternal?url=' + encodeURIComponent(location.href); };
+    $('kakaoRetry').onclick = escape;
+    setTimeout(escape, 300);
+    return;
+  }
+
+  // 3) 아이폰: 그림 안내
+  if (isIOS) { show('ios', true); show('iosArrow', true); return; }
+
+  // 4) 안드로이드·PC: 설치 버튼
+  show('android', true);
+  var deferred = null;
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault(); deferred = e;
+    $('waitNote').textContent = '버튼을 누르고, 뜨는 창에서 [설치]를 누르세요.';
+  });
+  window.addEventListener('appinstalled', function () {
+    deferred = null; show('android', false); show('installed', true);
+  });
+  $('installBtn').onclick = function () {
+    if (deferred) {
+      deferred.prompt();
+      deferred.userChoice.then(function (c) {
+        if (c && c.outcome === 'accepted') { show('android', false); show('installed', true); }
+        deferred = null;
+      });
+    } else {
+      show('manual', true);
+      $('waitNote').textContent = '자동 설치 창이 아직 준비되지 않았습니다. 아래 순서로 설치하세요.';
+    }
+  };
+})();
+</script>
+</body>
+</html>
