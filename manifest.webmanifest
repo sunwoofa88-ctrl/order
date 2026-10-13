@@ -1,7 +1,7 @@
 {
   "id": "./",
-  "name": "선우FA 발주대장",
-  "short_name": "발주대장",
+  "name": "선우FA 발주 관리 시스템",
+  "short_name": "발주관리시스템",
   "description": "선우FA 사내 자재 발주 관리",
   "lang": "ko",
   "start_url": "./?source=app",
